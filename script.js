@@ -12,7 +12,11 @@ const dateDescription = `${days[now.getDay()].slice(
   0,
   3
 )}, ${now.getDate()} ${months[now.getMonth()].slice(0, 3)}`;
-const time = `${now.getHours()}:${now.getMinutes()}`;
+
+const hours = `${now.getHours()}`.padStart(2, 0);
+const minutes = `${now.getMinutes()}`.padStart(2, 0);
+
+const time = `${hours}:${minutes}`;
 
 const getIcon = function (condition) {
   let icon;
