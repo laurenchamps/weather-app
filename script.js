@@ -74,6 +74,8 @@ const getIcon = function (condition) {
     case 'Moderate snow':
     case 'Patchy heavy snow':
     case 'Heavy snow':
+      icon = '<i class="ph ph-cloud-snow icon--current"></i>';
+      break;
     case 'Ice pellets':
     case 'Light showers of ice pellets':
     case 'Moderate or heavy showers of ice pellets':
@@ -98,7 +100,7 @@ const renderCurrentWeather = function (data, date, time) {
     <p class="date">${date}</p>
     <p class="time">${time}</p>
     <div class="container--temp">
-      <p class="current__temp">${data.current.temp_c}&deg;C</p>
+      <p class="current__temp">${Math.round(data.current.temp_c)}&deg;C</p>
       <!-- <p class="temp__unit"></p> -->
       <p class="temp__toggle">&deg;F</p>
     </div>
