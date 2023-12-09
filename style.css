@@ -35,6 +35,11 @@ body {
   /* justify-content: space-between; */
 }
 
+.conditions__icon {
+  padding: 1rem;
+  align-self: center;
+}
+
 .icon--current {
   font-size: 96px;
 }
