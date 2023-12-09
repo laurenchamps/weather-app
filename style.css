@@ -1,0 +1,145 @@
+/* Reset */
+html {
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+/* prettier-ignore */
+body, h1, h2, h3, h4, h5, h6, p, ol, ul {
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+  background-color: #474646;
+  color: #fff;
+  background: url('img/gradient-mountain-landscape.jpg') no-repeat center center
+    fixed;
+  background-size: cover;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-between; */
+}
+
+.icon--current {
+  font-size: 96px;
+}
+
+.current__primary {
+  font-size: 3.2rem;
+}
+
+.date,
+.time {
+  font-size: 1.6rem;
+}
+
+.current__temp {
+  font-size: 7.2rem;
+  font-weight: 300;
+}
+
+.container--temp {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+
+.temp__toggle {
+  font-size: 2.2rem;
+  font-weight: 300;
+}
+
+.app {
+  padding-top: 6rem;
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr;
+  grid-template-rows: 2fr 1fr;
+  gap: 2rem;
+  flex-grow: 1;
+}
+
+.current__primary {
+  grid-column: 1;
+  justify-self: center;
+}
+
+.form__input--location {
+  background-color: rgba(0, 0, 0, 0);
+  color: #fff;
+  border: none;
+  border-bottom: 2px solid #fff;
+  padding: 0.4rem;
+}
+
+input:focus {
+  outline: none;
+}
+
+.form__btn--location {
+  cursor: pointer;
+  border: none;
+  background-color: rgba(0, 0, 0, 0);
+  color: #fff;
+}
+
+.ph-magnifying-glass {
+  font-size: 1.2rem;
+}
+
+.current__secondary {
+  grid-column: 3;
+  /* justify-self: end; */
+  font-size: 1.6rem;
+}
+
+.conditions__label {
+  font-size: 1.4rem;
+  margin-block-start: 1.6rem;
+}
+
+.forecast--container {
+  grid-row: 2 / 3;
+  grid-column: 2 / span 3;
+  justify-self: center;
+  align-self: center;
+  display: grid;
+  grid-template-columns: auto repeat(3, 150px);
+  gap: 5rem;
+}
+
+.forecast--day0 {
+  grid-column: 2;
+}
+
+.day {
+  font-size: 1.6rem;
+}
+
+.max-temp {
+  font-size: 2rem;
+  font-weight: 300;
+}
+
+.conditions--forecast {
+  font-size: 1.2rem;
+}
+
+.footer {
+  height: 100px;
+  text-align: center;
+}
