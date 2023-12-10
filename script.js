@@ -6,6 +6,9 @@ const windSpeedLabel = document.querySelector('.conditions__label--wind-speed');
 const windDirectionLabel = document.querySelector(
   '.conditions__label--wind-direction'
 );
+const day0 = document.querySelector('.forecast--day0');
+const day1 = document.querySelector('.forecast--day1');
+const day2 = document.querySelector('.forecast--day2');
 // const rainChanceLabel = document.querySelector('.conditions__label--rain');
 
 // prettier-ignore
@@ -168,13 +171,52 @@ const getCurrentWeather = async function () {
 
     renderCurrentWeather(data, dateDescription, time);
     getIcon(data.current.condition.text);
+    getForecast(data);
   } catch (err) {
     console.error(`${err}`);
   }
 };
 
-getCurrentWeather();
+const getForecast = function (data) {
+  const dayAfterTmrw = `${days[now.getDay() + 2].slice(0, 3)}`;
 
-// const getForecast = function(data) {
-//   const today =
-// };
+  const todayHTML = `<p class="day day--day0">Today</p>
+    <p class="max-temp max-temp--day0">${Math.round(
+      data.forecast.forecastday[0].day.maxtemp_c
+    )}&deg;</p>
+    <p class="min-temp min-temp--day0">${Math.round(
+      data.forecast.forecastday[0].day.mintemp_c
+    )}&deg;</p>
+    <p class="conditions conditions--forecast conditions--day0">${
+      data.forecast.forecastday[0].day.condition.text
+    }</p>`;
+
+  const tmrwHTML = `<p class="day day--day1">Tomorrow</p>
+  <p class="max-temp max-temp--day1">${Math.round(
+    data.forecast.forecastday[1].day.maxtemp_c
+  )}&deg;</p>
+  <p class="min-temp min-temp--day1">${Math.round(
+    data.forecast.forecastday[1].day.mintemp_c
+  )}&deg;</p>
+  <p class="conditions conditions--forecast conditions--day1">${
+    data.forecast.forecastday[1].day.condition.text
+  }
+  </p>`;
+
+  const dayAfterTmrwHTML = `<p class="day day--day2">${dayAfterTmrw}</p>
+  <p class="max-temp max-temp--day2">${Math.round(
+    data.forecast.forecastday[2].day.maxtemp_c
+  )}&deg;</p>
+  <p class="min-temp min-temp--day2">${Math.round(
+    data.forecast.forecastday[2].day.mintemp_c
+  )}&deg;</p>
+  <p class="conditions conditions--forecast conditions--day2">${
+    data.forecast.forecastday[2].day.condition.text
+  }</p>`;
+
+  day0.insertAdjacentHTML('afterbegin', todayHTML);
+  day1.insertAdjacentHTML('afterbegin', tmrwHTML);
+  day2.insertAdjacentHTML('afterbegin', dayAfterTmrwHTML);
+};
+
+getCurrentWeather();

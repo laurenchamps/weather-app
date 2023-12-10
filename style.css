@@ -24,7 +24,7 @@ img {
 
 body {
   font-family: 'Lato', sans-serif;
-  padding: 2rem;
+  /* padding: 2rem; */
   background-color: #474646;
   color: #fff;
   background: url('img/gradient-mountain-landscape.jpg') no-repeat center center
@@ -148,4 +148,11 @@ input:focus {
 
 .footer {
   text-align: center;
+  font-weight: 400;
+  font-size: 0.8rem;
+  padding-bottom: 1rem;
+}
+
+a {
+  color: #fff;
 }
