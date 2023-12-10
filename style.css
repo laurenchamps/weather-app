@@ -33,7 +33,7 @@ body {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  /* justify-content: space-between; */
+  justify-content: space-between;
 }
 
 .conditions__icon {
@@ -147,6 +147,5 @@ input:focus {
 }
 
 .footer {
-  height: 100px;
   text-align: center;
 }

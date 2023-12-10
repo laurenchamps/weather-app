@@ -1,6 +1,12 @@
 'use strict';
 
 const currentWeatherPrimary = document.querySelector('.current__primary');
+const humidityLabel = document.querySelector('.conditions__label--humidity');
+const windSpeedLabel = document.querySelector('.conditions__label--wind-speed');
+const windDirectionLabel = document.querySelector(
+  '.conditions__label--wind-direction'
+);
+// const rainChanceLabel = document.querySelector('.conditions__label--rain');
 
 // prettier-ignore
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -95,7 +101,7 @@ const getIcon = function (condition) {
   return icon;
 };
 
-const renderCurrentWeather = function (data, date, time) {
+const renderWeatherPrimary = function (data, date, time) {
   const html = `<p class="city">${data.location.name}</p>
     <p class="date">${date}</p>
     <p class="time">${time}</p>
@@ -112,6 +118,27 @@ const renderCurrentWeather = function (data, date, time) {
   currentWeatherPrimary.insertAdjacentHTML('afterbegin', html);
 };
 
+const renderWeatherSecondary = function (data) {
+  const humidity = `<p class="conditions conditions--current conditions__value          conditions__value--humidity">${data.current.humidity}%</p>`;
+
+  const windSpeed = `<p class="conditions conditions--current conditions__value conditions__value--wind"
+    >${data.current.wind_kph}km/h</p>`;
+
+  const windDirection = ` <p class="conditions conditions--current conditions__value conditions__value--wind-direction">${data.current.wind_dir}</p>`;
+
+  //   const chanceOfRain = `<p class="conditions conditions--current conditions__value conditions__value--rain">${data.forecast.forecastday[0].day.daily_chance_of_rain}%</p>`;
+
+  humidityLabel.insertAdjacentHTML('afterend', humidity);
+  windSpeedLabel.insertAdjacentHTML('afterend', windSpeed);
+  windDirectionLabel.insertAdjacentHTML('afterend', windDirection);
+  //   rainChanceLabel.insertAdjacentHTML('afterend', chanceOfRain);
+};
+
+const renderCurrentWeather = function (data, date, time) {
+  renderWeatherPrimary(data, date, time);
+  renderWeatherSecondary(data, date, time);
+};
+
 // Get user's geolocation data
 const getPosition = function () {
   return new Promise(function (resolve, reject) {
@@ -119,7 +146,7 @@ const getPosition = function () {
   });
 };
 
-const getWeather = async function () {
+const getCurrentWeather = async function () {
   try {
     const pos = await getPosition();
     const { latitude: lat, longitude: lng } = pos.coords;
@@ -146,6 +173,8 @@ const getWeather = async function () {
   }
 };
 
-getWeather();
+getCurrentWeather();
 
-// getPosition().then(pos => console.log(pos));
+// const getForecast = function(data) {
+//   const today =
+// };
