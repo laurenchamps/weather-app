@@ -71,6 +71,7 @@ body {
 }
 
 .app {
+  padding: 0 2rem;
   display: grid;
   grid-template-columns: 2fr minmax(auto, 1fr) 1fr;
   grid-template-rows: minmax(1fr, auto) 3fr 2fr;
