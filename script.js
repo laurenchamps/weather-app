@@ -166,7 +166,7 @@ const getCurrentWeather = async function () {
 
     // Get weather data
     const res = await fetch(
-      `http://api.weatherapi.com/v1/forecast.json?key=a51af733c4b24157bfa21819230812&q=${dataGeo.city}&days=3&aqi=no&alerts=no`,
+      `https://api.weatherapi.com/v1/forecast.json?key=a51af733c4b24157bfa21819230812&q=${dataGeo.city}&days=3&aqi=no&alerts=no`,
       {
         mode: 'cors',
       }
