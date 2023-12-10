@@ -1,5 +1,7 @@
 # Weather app
-Project for The Odin Project - first release.
+For The Odin Project.
+
+First release
 
 To be added: 
 - Enable location search
