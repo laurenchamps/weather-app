@@ -139,7 +139,7 @@ const renderWeatherSecondary = function (data) {
 
 const renderCurrentWeather = function (data, date, time) {
   renderWeatherPrimary(data, date, time);
-  renderWeatherSecondary(data, date, time);
+  renderWeatherSecondary(data);
 };
 
 // Get user's geolocation data
@@ -156,14 +156,20 @@ const getCurrentWeather = async function () {
 
     // Reverse geocode to get city name
     const responseGeo = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`,
+      {
+        mode: 'cors',
+      }
     );
     if (!responseGeo) throw new Error('Problem getting location data');
     const dataGeo = await responseGeo.json();
 
     // Get weather data
     const res = await fetch(
-      `http://api.weatherapi.com/v1/forecast.json?key=a51af733c4b24157bfa21819230812&q=${dataGeo.city}&days=3&aqi=no&alerts=no`
+      `http://api.weatherapi.com/v1/forecast.json?key=a51af733c4b24157bfa21819230812&q=${dataGeo.city}&days=3&aqi=no&alerts=no`,
+      {
+        mode: 'cors',
+      }
     );
     if (!res) throw new Error('No weather data for your location');
     const data = await res.json();
