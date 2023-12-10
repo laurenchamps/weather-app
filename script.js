@@ -142,17 +142,35 @@ const renderCurrentWeather = function (data, date, time) {
   renderWeatherSecondary(data);
 };
 
-// Get user's geolocation data
-const getPosition = function () {
+// Promisify geolocation API
+const getCurrentPos = function () {
   return new Promise(function (resolve, reject) {
     navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 };
 
-const getCurrentWeather = async function () {
+let lat;
+let lng;
+
+// Get user's position
+const getPosition = async function () {
+  // Get current location
   try {
     const pos = await getPosition();
-    const { latitude: lat, longitude: lng } = pos.coords;
+    const { latitude, longitude } = pos.coords;
+    lat = latitude;
+    lng = longitude;
+  } catch {
+    // Set default to Melbourne
+    lat = -37.8136;
+    lng = 144.9631;
+  }
+  console.log(lat, lng);
+};
+
+const getCurrentWeather = async function () {
+  try {
+    await getPosition();
 
     // Reverse geocode to get city name
     const responseGeo = await fetch(
@@ -163,6 +181,7 @@ const getCurrentWeather = async function () {
     );
     if (!responseGeo) throw new Error('Problem getting location data');
     const dataGeo = await responseGeo.json();
+    console.log(dataGeo);
 
     // Get weather data
     const res = await fetch(
