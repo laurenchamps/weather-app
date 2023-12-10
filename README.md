@@ -1,5 +1,10 @@
 # Weather app
-Project for The Odin Project.
+Project for The Odin Project - first release.
+
+To be added: 
+- Render a default location if user doesn't permit access to location
+- Search location
+- Toggle &deg;C / &deg;F
 
 Concepts learnt:
 - Promises
