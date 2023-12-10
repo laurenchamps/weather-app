@@ -16,6 +16,13 @@ const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 // prettier-ignore
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
+const DEFAULT_LOCATION = {
+  //   lat: -37.8136,
+  //   lng: 144.9631,
+  lat: 51.5072,
+  lng: -0.1276,
+};
+
 const now = new Date();
 const dateDescription = `${days[now.getDay()].slice(
   0,
@@ -149,35 +156,24 @@ const getCurrentPos = function () {
   });
 };
 
-let lat;
-let lng;
-
-// Get user's position
-const getPosition = async function () {
-  // Get current location
-  try {
-    const pos = await getPosition();
-    const { latitude, longitude } = pos.coords;
-    lat = latitude;
-    lng = longitude;
-  } catch {
-    // Set default to Melbourne
-    lat = -37.8136;
-    lng = 144.9631;
-  }
-  console.log(lat, lng);
-};
-
 const getCurrentWeather = async function () {
-  try {
-    await getPosition();
+  let lat;
+  let lng;
+  getCurrentPos()
+    .then(pos => {
+      lat = pos.coords.latitude;
+      lng = pos.coords.longitude;
+    })
+    .catch(err => {
+      lat = DEFAULT_LOCATION.lat;
+      lng = DEFAULT_LOCATION.lng;
+      console.error(`Couldn't get position: ${err}`);
+    });
 
-    // Reverse geocode to get city name
+  try {
+    // Reverse geocode to get city name. This API also uses IP location which will override the lat and long values passed into the url
     const responseGeo = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`,
-      {
-        mode: 'cors',
-      }
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
     );
     if (!responseGeo) throw new Error('Problem getting location data');
     const dataGeo = await responseGeo.json();
@@ -192,7 +188,6 @@ const getCurrentWeather = async function () {
     );
     if (!res) throw new Error('No weather data for your location');
     const data = await res.json();
-    console.log(data);
 
     renderCurrentWeather(data, dateDescription, time);
     getIcon(data.current.condition.text);
