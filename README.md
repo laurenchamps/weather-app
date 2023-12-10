@@ -2,8 +2,7 @@
 Project for The Odin Project - first release.
 
 To be added: 
-- Render a default location if user doesn't permit access to location
-- Search location
+- Enable location search
 - Toggle &deg;C / &deg;F
 
 Concepts learnt:
