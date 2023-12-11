@@ -10,5 +10,4 @@ Concepts learnt:
 👉 [Live preview](https://tubular-sunflower-b43ffc.netlify.app/)
 
 To be added: 
-- Toggle &deg;C / &deg;F
-- Optimise mobile view
+- Optimise layout incl. mobile view
