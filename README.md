@@ -1,10 +1,8 @@
 # Weather app
-For The Odin Project.
-
 First release
 
 To be added: 
-- Enable location search
+- Enable default location to be displayed if invalid location searched
 - Toggle &deg;C / &deg;F
 
 Concepts learnt:
