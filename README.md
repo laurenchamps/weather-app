@@ -2,7 +2,6 @@
 First release
 
 To be added: 
-- Enable default location to be displayed if invalid location searched
 - Toggle &deg;C / &deg;F
 - Optimise mobile view
 
