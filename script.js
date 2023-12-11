@@ -1,14 +1,12 @@
 'use strict';
 
 const currentWeatherPrimary = document.querySelector('.current__primary');
-const humidityLabel = document.querySelector('.conditions__label--humidity');
-const windSpeedLabel = document.querySelector('.conditions__label--wind-speed');
-const windDirectionLabel = document.querySelector(
-  '.conditions__label--wind-direction'
-);
-const day0 = document.querySelector('.forecast--day0');
-const day1 = document.querySelector('.forecast--day1');
-const day2 = document.querySelector('.forecast--day2');
+const currentWeatherSecondary = document.querySelector('.current__secondary');
+const forecastContainer = document.querySelector('.forecast--container');
+const locationForm = document.querySelector('[name=location-search');
+const locationInput = document.querySelector('.form__input--location');
+// const primaryConditions = document.querySelector('.primary--conditions');
+
 // const rainChanceLabel = document.querySelector('.conditions__label--rain');
 
 // prettier-ignore
@@ -17,10 +15,9 @@ const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 const DEFAULT_LOCATION = {
-  //   lat: -37.8136,
-  //   lng: 144.9631,
-  lat: 51.5072,
-  lng: -0.1276,
+  lat: -37.8136,
+  lng: 144.9631,
+  city: 'Melbourne',
 };
 
 const now = new Date();
@@ -111,8 +108,30 @@ const getIcon = function (condition) {
   return icon;
 };
 
+const getSearchData = async function (location) {
+  try {
+    // Get weather data
+    const res = await fetch(
+      `https://api.weatherapi.com/v1/forecast.json?key=a51af733c4b24157bfa21819230812&q=${location}&days=3&aqi=no&alerts=no`,
+      {
+        mode: 'cors',
+      }
+    );
+    if (!res) throw new Error('No weather data for your location');
+    const data = await res.json();
+
+    renderCurrentWeather(data, dateDescription, time);
+    getIcon(data.current.condition.text);
+    renderForecast(data);
+  } catch (err) {
+    console.error(`${err}`);
+  }
+};
+
 const renderWeatherPrimary = function (data, date, time) {
-  const html = `<p class="city">${data.location.name}</p>
+  const html = `<div class="conditions--primary"><p class="city">${
+    data.location.name
+  }</p>
     <p class="date">${date}</p>
     <p class="time">${time}</p>
     <div class="container--temp">
@@ -123,25 +142,25 @@ const renderWeatherPrimary = function (data, date, time) {
     <p class="conditions__description">${data.current.condition.text}</p>
     <p class="conditions__icon">
       ${getIcon(data.current.condition.text)}
-    </p>`;
+    </p>
+    </div>`;
 
   currentWeatherPrimary.insertAdjacentHTML('afterbegin', html);
 };
 
 const renderWeatherSecondary = function (data) {
-  const humidity = `<p class="conditions conditions--current conditions__value          conditions__value--humidity">${data.current.humidity}%</p>`;
+  const html = `<div class="conditions--secondary">
+    <p class="conditions conditions--current conditions__label conditions__label--humidity"
+    >Humidity</p>
+    <p class="conditions conditions--current conditions__value conditions__value--humidity">${data.current.humidity}%</p>
+    <p class="conditions conditions--current conditions__label conditions__label--wind-speed">Wind speed</p>
+    <p class="conditions conditions--current conditions__value conditions__value--wind"
+    >${data.current.wind_kph}km/h</p>
+    <p class="conditions conditions--current conditions__label conditions__label--wind-direction">  Wind direction</p>
+    <p class="conditions conditions--current conditions__value conditions__value--wind-direction">${data.current.wind_dir}</p>
+    </div>`;
 
-  const windSpeed = `<p class="conditions conditions--current conditions__value conditions__value--wind"
-    >${data.current.wind_kph}km/h</p>`;
-
-  const windDirection = ` <p class="conditions conditions--current conditions__value conditions__value--wind-direction">${data.current.wind_dir}</p>`;
-
-  //   const chanceOfRain = `<p class="conditions conditions--current conditions__value conditions__value--rain">${data.forecast.forecastday[0].day.daily_chance_of_rain}%</p>`;
-
-  humidityLabel.insertAdjacentHTML('afterend', humidity);
-  windSpeedLabel.insertAdjacentHTML('afterend', windSpeed);
-  windDirectionLabel.insertAdjacentHTML('afterend', windDirection);
-  //   rainChanceLabel.insertAdjacentHTML('afterend', chanceOfRain);
+  currentWeatherSecondary.insertAdjacentHTML('afterbegin', html);
 };
 
 const renderCurrentWeather = function (data, date, time) {
@@ -180,63 +199,104 @@ const getCurrentWeather = async function () {
     console.log(dataGeo);
 
     // Get weather data
-    const res = await fetch(
-      `https://api.weatherapi.com/v1/forecast.json?key=a51af733c4b24157bfa21819230812&q=${dataGeo.city}&days=3&aqi=no&alerts=no`,
-      {
-        mode: 'cors',
-      }
-    );
-    if (!res) throw new Error('No weather data for your location');
-    const data = await res.json();
+    getSearchData(dataGeo.city);
+    //     const res = await fetch(
+    //       `https://api.weatherapi.com/v1/forecast.json?key=a51af733c4b24157bfa21819230812&q=${dataGeo.city}&days=3&aqi=no&alerts=no`,
+    //       {
+    //         mode: 'cors',
+    //       }
+    //     );
+    //     if (!res) throw new Error('No weather data for your location');
+    //     const data = await res.json();
 
-    renderCurrentWeather(data, dateDescription, time);
-    getIcon(data.current.condition.text);
-    getForecast(data);
+    //     renderCurrentWeather(data, dateDescription, time);
+    //     getIcon(data.current.condition.text);
+    //     renderForecast(data);
+    //   } catch (err) {
+    //     console.error(`${err}`);
+    //   }
   } catch (err) {
-    console.error(`${err}`);
+    console.log(err);
   }
 };
 
-const getForecast = function (data) {
+const renderForecast = function (data) {
   const dayAfterTmrw = `${days[now.getDay() + 2].slice(0, 3)}`;
 
-  const todayHTML = `<p class="day day--day0">Today</p>
-    <p class="max-temp max-temp--day0">${Math.round(
-      data.forecast.forecastday[0].day.maxtemp_c
+  const todayHTML = `<div class="forecast forecast--day0">
+        <p class="day day--day0">Today</p>
+        <p class="max-temp max-temp--day0">${Math.round(
+          data.forecast.forecastday[0].day.maxtemp_c
+        )}&deg;</p>
+        <p class="min-temp min-temp--day0">${Math.round(
+          data.forecast.forecastday[0].day.mintemp_c
+        )}&deg;</p>
+        <p class="conditions conditions--forecast conditions--day0">${
+          data.forecast.forecastday[0].day.condition.text
+        }</p>
+    </div>`;
+
+  const tmrwHTML = `<div class="forecast forecast--day1">
+    <p class="day day--day1">Tomorrow</p>
+    <p class="max-temp max-temp--day1">${Math.round(
+      data.forecast.forecastday[1].day.maxtemp_c
     )}&deg;</p>
-    <p class="min-temp min-temp--day0">${Math.round(
-      data.forecast.forecastday[0].day.mintemp_c
+    <p class="min-temp min-temp--day1">${Math.round(
+      data.forecast.forecastday[1].day.mintemp_c
     )}&deg;</p>
-    <p class="conditions conditions--forecast conditions--day0">${
-      data.forecast.forecastday[0].day.condition.text
-    }</p>`;
+    <p class="conditions conditions--forecast conditions--day1">${
+      data.forecast.forecastday[1].day.condition.text
+    }
+    </p>
+  </div>`;
 
-  const tmrwHTML = `<p class="day day--day1">Tomorrow</p>
-  <p class="max-temp max-temp--day1">${Math.round(
-    data.forecast.forecastday[1].day.maxtemp_c
-  )}&deg;</p>
-  <p class="min-temp min-temp--day1">${Math.round(
-    data.forecast.forecastday[1].day.mintemp_c
-  )}&deg;</p>
-  <p class="conditions conditions--forecast conditions--day1">${
-    data.forecast.forecastday[1].day.condition.text
-  }
-  </p>`;
+  const dayAfterTmrwHTML = `
+  <div class="forecast forecast--day2">
+    <p class="day day--day2">${dayAfterTmrw}</p>
+    <p class="max-temp max-temp--day2">${Math.round(
+      data.forecast.forecastday[2].day.maxtemp_c
+    )}&deg;</p>
+    <p class="min-temp min-temp--day2">${Math.round(
+      data.forecast.forecastday[2].day.mintemp_c
+    )}&deg;</p>
+    <p class="conditions conditions--forecast conditions--day2">${
+      data.forecast.forecastday[2].day.condition.text
+    }</p>
+  </div>`;
 
-  const dayAfterTmrwHTML = `<p class="day day--day2">${dayAfterTmrw}</p>
-  <p class="max-temp max-temp--day2">${Math.round(
-    data.forecast.forecastday[2].day.maxtemp_c
-  )}&deg;</p>
-  <p class="min-temp min-temp--day2">${Math.round(
-    data.forecast.forecastday[2].day.mintemp_c
-  )}&deg;</p>
-  <p class="conditions conditions--forecast conditions--day2">${
-    data.forecast.forecastday[2].day.condition.text
-  }</p>`;
-
-  day0.insertAdjacentHTML('afterbegin', todayHTML);
-  day1.insertAdjacentHTML('afterbegin', tmrwHTML);
-  day2.insertAdjacentHTML('afterbegin', dayAfterTmrwHTML);
+  forecastContainer.insertAdjacentHTML('beforeend', todayHTML);
+  forecastContainer.insertAdjacentHTML('beforeend', tmrwHTML);
+  forecastContainer.insertAdjacentHTML('beforeend', dayAfterTmrwHTML);
 };
 
 getCurrentWeather();
+
+const clearData = function (...elements) {
+  elements.forEach(element => {
+    if (element) element.remove();
+  });
+};
+
+// Event listener
+locationForm.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const primaryConditions = document.querySelector('.conditions--primary');
+  const secondaryConditions = document.querySelector('.conditions--secondary');
+  const forecastDay0 = document.querySelector('.forecast--day0');
+  const forecastDay1 = document.querySelector('.forecast--day1');
+  const forecastDay2 = document.querySelector('.forecast--day2');
+  clearData(
+    primaryConditions,
+    secondaryConditions,
+    forecastDay0,
+    forecastDay1,
+    forecastDay2
+  );
+
+  //   Render new conditions
+  getSearchData(locationInput.value);
+
+  //   Clear form field
+  locationInput.value = '';
+});

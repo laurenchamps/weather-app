@@ -92,6 +92,7 @@ body {
   border: none;
   border-bottom: 2px solid #fff;
   padding: 0.4rem;
+  font-size: 1.2rem;
 }
 
 input:focus {
