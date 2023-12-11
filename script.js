@@ -295,7 +295,7 @@ const clearDOMElements = function () {
   if (forecastDay2) forecastDay2.remove();
 };
 
-// Event listener
+// Event listeners
 
 locationForm.addEventListener('submit', function (e) {
   e.preventDefault();
