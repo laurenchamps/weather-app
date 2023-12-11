@@ -17,6 +17,9 @@ const DEFAULT_LOCATION = {
   city: 'Melbourne',
 };
 
+let tempUnit = 'c';
+let data;
+
 const now = new Date();
 
 const getDateDescription = function (date) {
@@ -118,29 +121,37 @@ const getWeatherData = async function (location) {
       }
     );
     // If response not ok, call again for default location
-    if (!res.ok) alert('Invalid location 😕');
+    if (!res.ok) {
+      alert('Invalid location 😕');
+      throw new Error('Invalid location. Data could not be retrieved 😕');
+    } else {
+      data = await res.json();
 
-    const data = await res.json();
-
-    // Render weather data
-    renderCurrentWeather(data);
-    getIcon(data.current.condition.text);
-    renderForecast(data);
+      //   Clear existing weather data
+      clearDOMElements();
+      // Render weather data
+      renderCurrentWeather(data, tempUnit);
+      getIcon(data.current.condition.text);
+      renderForecast(data, tempUnit);
+    }
   } catch (err) {
-    console.error(`${err}`);
+    console.error(`${err.message}`);
   }
 };
 
-const renderWeatherPrimary = function (data) {
+const renderWeatherPrimary = function (data, tempUnit) {
+  const temp = `temp_${tempUnit}`;
+
   const html = `<div class="conditions--primary"><p class="city">${
     data.location.name
   }</p>
     <p class="date">${getDateDescription(now)}</p>
     <p class="time">${getTime(now)}</p>
     <div class="container--temp">
-      <p class="current__temp">${Math.round(data.current.temp_c)}&deg;C</p>
-      <!-- <p class="temp__unit"></p> -->
-      <p class="temp__toggle">&deg;F</p>
+      <p class="current__temp">${Math.round(
+        data.current[temp]
+      )}&deg;<span class="temp__unit">${tempUnit.toUpperCase()}</span></p>
+      <p class="temp__toggle">&deg;${tempUnit === 'c' ? 'F' : 'C'}</p>
     </div>
     <p class="conditions__description">${data.current.condition.text}</p>
     <p class="conditions__icon">
@@ -166,17 +177,20 @@ const renderWeatherSecondary = function (data) {
   currentWeatherSecondary.insertAdjacentHTML('afterbegin', html);
 };
 
-const renderForecast = function (data) {
+const renderForecast = function (data, tempUnit) {
   const dayAfterTmrw = `${days[now.getDay() + 2].slice(0, 3)}`;
+
+  const minTemp = `mintemp_${tempUnit}`;
+  const maxTemp = `maxtemp_${tempUnit}`;
 
   const todayHTML = `<div class="forecast forecast--day0">
         <p class="day day--day0">Today</p>
         <p class="max-temp max-temp--day0">${Math.round(
-          data.forecast.forecastday[0].day.maxtemp_c
-        )}&deg;</p>
+          data.forecast.forecastday[0].day[maxTemp]
+        )}&deg;${tempUnit.toUpperCase()}</p>
         <p class="min-temp min-temp--day0">${Math.round(
-          data.forecast.forecastday[0].day.mintemp_c
-        )}&deg;</p>
+          data.forecast.forecastday[0].day[minTemp]
+        )}&deg;${tempUnit.toUpperCase()}</p>
         <p class="conditions conditions--forecast conditions--day0">${
           data.forecast.forecastday[0].day.condition.text
         }</p>
@@ -185,11 +199,11 @@ const renderForecast = function (data) {
   const tmrwHTML = `<div class="forecast forecast--day1">
     <p class="day day--day1">Tomorrow</p>
     <p class="max-temp max-temp--day1">${Math.round(
-      data.forecast.forecastday[1].day.maxtemp_c
-    )}&deg;</p>
+      data.forecast.forecastday[1].day[maxTemp]
+    )}&deg;${tempUnit.toUpperCase()}</p>
     <p class="min-temp min-temp--day1">${Math.round(
-      data.forecast.forecastday[1].day.mintemp_c
-    )}&deg;</p>
+      data.forecast.forecastday[1].day[minTemp]
+    )}&deg;${tempUnit.toUpperCase()}</p>
     <p class="conditions conditions--forecast conditions--day1">${
       data.forecast.forecastday[1].day.condition.text
     }
@@ -200,11 +214,11 @@ const renderForecast = function (data) {
   <div class="forecast forecast--day2">
     <p class="day day--day2">${dayAfterTmrw}</p>
     <p class="max-temp max-temp--day2">${Math.round(
-      data.forecast.forecastday[2].day.maxtemp_c
-    )}&deg;</p>
+      data.forecast.forecastday[2].day[maxTemp]
+    )}&deg;${tempUnit.toUpperCase()}</p>
     <p class="min-temp min-temp--day2">${Math.round(
-      data.forecast.forecastday[2].day.mintemp_c
-    )}&deg;</p>
+      data.forecast.forecastday[2].day[minTemp]
+    )}&deg;${tempUnit.toUpperCase()}</p>
     <p class="conditions conditions--forecast conditions--day2">${
       data.forecast.forecastday[2].day.condition.text
     }</p>
@@ -215,9 +229,9 @@ const renderForecast = function (data) {
   forecastContainer.insertAdjacentHTML('beforeend', dayAfterTmrwHTML);
 };
 
-const renderCurrentWeather = function (data) {
-  renderWeatherPrimary(data);
-  renderWeatherSecondary(data);
+const renderCurrentWeather = function (data, tempUnit) {
+  renderWeatherPrimary(data, tempUnit);
+  renderWeatherSecondary(data, tempUnit);
 };
 
 // Promisify geolocation API
@@ -286,14 +300,20 @@ const clearDOMElements = function () {
 locationForm.addEventListener('submit', function (e) {
   e.preventDefault();
 
-  //   Clear existing weather data
-  clearDOMElements();
-
   // Get weather data for location and render
   getWeatherData(locationInput.value);
 
   //   Clear form field
   locationInput.value = '';
+});
+
+currentWeatherPrimary.addEventListener('click', function (e) {
+  if (e.target.classList.contains('temp__toggle')) {
+    tempUnit === 'c' ? (tempUnit = 'f') : (tempUnit = 'c');
+    clearDOMElements();
+    renderCurrentWeather(data, tempUnit);
+    renderForecast(data, tempUnit);
+  }
 });
 
 getCurrentWeather();
