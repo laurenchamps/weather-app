@@ -5,9 +5,6 @@ const currentWeatherSecondary = document.querySelector('.current__secondary');
 const forecastContainer = document.querySelector('.forecast--container');
 const locationForm = document.querySelector('[name=location-search');
 const locationInput = document.querySelector('.form__input--location');
-// const primaryConditions = document.querySelector('.primary--conditions');
-
-// const rainChanceLabel = document.querySelector('.conditions__label--rain');
 
 // prettier-ignore
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -21,15 +18,18 @@ const DEFAULT_LOCATION = {
 };
 
 const now = new Date();
-const dateDescription = `${days[now.getDay()].slice(
-  0,
-  3
-)}, ${now.getDate()} ${months[now.getMonth()].slice(0, 3)}`;
 
-const hours = `${now.getHours()}`.padStart(2, 0);
-const minutes = `${now.getMinutes()}`.padStart(2, 0);
+const getDateDescription = function (date) {
+  return `${days[now.getDay()].slice(0, 3)}, ${now.getDate()} ${months[
+    now.getMonth()
+  ].slice(0, 3)}`;
+};
 
-const time = `${hours}:${minutes}`;
+const getTime = function (date) {
+  const hours = `${now.getHours()}`.padStart(2, 0);
+  const minutes = `${now.getMinutes()}`.padStart(2, 0);
+  return `${hours}:${minutes}`;
+};
 
 const getIcon = function (condition) {
   let icon;
@@ -108,7 +108,7 @@ const getIcon = function (condition) {
   return icon;
 };
 
-const getSearchData = async function (location) {
+const getWeatherData = async function (location) {
   try {
     // Get weather data
     const res = await fetch(
@@ -117,10 +117,13 @@ const getSearchData = async function (location) {
         mode: 'cors',
       }
     );
-    if (!res) throw new Error('No weather data for your location');
+    // If response not ok, call again for default location
+    if (!res.ok) alert('Invalid location 😕');
+
     const data = await res.json();
 
-    renderCurrentWeather(data, dateDescription, time);
+    // Render weather data
+    renderCurrentWeather(data);
     getIcon(data.current.condition.text);
     renderForecast(data);
   } catch (err) {
@@ -128,12 +131,12 @@ const getSearchData = async function (location) {
   }
 };
 
-const renderWeatherPrimary = function (data, date, time) {
+const renderWeatherPrimary = function (data) {
   const html = `<div class="conditions--primary"><p class="city">${
     data.location.name
   }</p>
-    <p class="date">${date}</p>
-    <p class="time">${time}</p>
+    <p class="date">${getDateDescription(now)}</p>
+    <p class="time">${getTime(now)}</p>
     <div class="container--temp">
       <p class="current__temp">${Math.round(data.current.temp_c)}&deg;C</p>
       <!-- <p class="temp__unit"></p> -->
@@ -161,63 +164,6 @@ const renderWeatherSecondary = function (data) {
     </div>`;
 
   currentWeatherSecondary.insertAdjacentHTML('afterbegin', html);
-};
-
-const renderCurrentWeather = function (data, date, time) {
-  renderWeatherPrimary(data, date, time);
-  renderWeatherSecondary(data);
-};
-
-// Promisify geolocation API
-const getCurrentPos = function () {
-  return new Promise(function (resolve, reject) {
-    navigator.geolocation.getCurrentPosition(resolve, reject);
-  });
-};
-
-const getCurrentWeather = async function () {
-  let lat;
-  let lng;
-  getCurrentPos()
-    .then(pos => {
-      lat = pos.coords.latitude;
-      lng = pos.coords.longitude;
-    })
-    .catch(err => {
-      lat = DEFAULT_LOCATION.lat;
-      lng = DEFAULT_LOCATION.lng;
-      console.error(`Couldn't get position: ${err}`);
-    });
-
-  try {
-    // Reverse geocode to get city name. This API also uses IP location which will override the lat and long values passed into the url
-    const responseGeo = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
-    );
-    if (!responseGeo) throw new Error('Problem getting location data');
-    const dataGeo = await responseGeo.json();
-    console.log(dataGeo);
-
-    // Get weather data
-    getSearchData(dataGeo.city);
-    //     const res = await fetch(
-    //       `https://api.weatherapi.com/v1/forecast.json?key=a51af733c4b24157bfa21819230812&q=${dataGeo.city}&days=3&aqi=no&alerts=no`,
-    //       {
-    //         mode: 'cors',
-    //       }
-    //     );
-    //     if (!res) throw new Error('No weather data for your location');
-    //     const data = await res.json();
-
-    //     renderCurrentWeather(data, dateDescription, time);
-    //     getIcon(data.current.condition.text);
-    //     renderForecast(data);
-    //   } catch (err) {
-    //     console.error(`${err}`);
-    //   }
-  } catch (err) {
-    console.log(err);
-  }
 };
 
 const renderForecast = function (data) {
@@ -269,34 +215,85 @@ const renderForecast = function (data) {
   forecastContainer.insertAdjacentHTML('beforeend', dayAfterTmrwHTML);
 };
 
-getCurrentWeather();
+const renderCurrentWeather = function (data) {
+  renderWeatherPrimary(data);
+  renderWeatherSecondary(data);
+};
 
-const clearData = function (...elements) {
-  elements.forEach(element => {
-    if (element) element.remove();
+// Promisify geolocation API
+const getCurrentPos = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 };
 
-// Event listener
-locationForm.addEventListener('submit', function (e) {
-  e.preventDefault();
+const getCurrentWeather = async function () {
+  // Get current location
+  let lat;
+  let lng;
 
+  let location;
+  getCurrentPos()
+    .then(pos => {
+      lat = pos.coords.latitude;
+      lng = pos.coords.longitude;
+    })
+    .catch(err => {
+      lat = DEFAULT_LOCATION.lat;
+      lng = DEFAULT_LOCATION.lng;
+      console.error(`Couldn't get position from browser 😕: ${err}`);
+    });
+
+  try {
+    // Reverse geocode to get city name. This API also uses IP location which will override the lat and long values passed into the url
+    const responseGeo = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
+    );
+    // If invalid location, set location to default
+    if (responseGeo) {
+      const dataGeo = await responseGeo.json();
+      // Get weather data for location
+      getWeatherData(dataGeo.city);
+    } else {
+      const responseGeo2 = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${DEFAULT_LOCATION.lat}&longitude=${DEFAULT_LOCATION.lng}`
+      );
+      const dataGeo2 = await responseGeo2.json();
+      //   Get weather data for default location
+      getWeatherData(dataGeo2);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const clearDOMElements = function () {
   const primaryConditions = document.querySelector('.conditions--primary');
   const secondaryConditions = document.querySelector('.conditions--secondary');
   const forecastDay0 = document.querySelector('.forecast--day0');
   const forecastDay1 = document.querySelector('.forecast--day1');
   const forecastDay2 = document.querySelector('.forecast--day2');
-  clearData(
-    primaryConditions,
-    secondaryConditions,
-    forecastDay0,
-    forecastDay1,
-    forecastDay2
-  );
 
-  //   Render new conditions
-  getSearchData(locationInput.value);
+  if (primaryConditions) primaryConditions.remove();
+  if (secondaryConditions) secondaryConditions.remove();
+  if (forecastDay0) forecastDay0.remove();
+  if (forecastDay1) forecastDay1.remove();
+  if (forecastDay2) forecastDay2.remove();
+};
+
+// Event listener
+
+locationForm.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  //   Clear existing weather data
+  clearDOMElements();
+
+  // Get weather data for location and render
+  getWeatherData(locationInput.value);
 
   //   Clear form field
   locationInput.value = '';
 });
+
+getCurrentWeather();
