@@ -29,11 +29,23 @@ body {
   color: #fff;
   background: url('img/gradient-mountain-landscape.jpg') no-repeat center center
     fixed;
+  background-color: #02426f;
   background-size: cover;
   height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
+  isolation: isolate;
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: #001b28;
+  opacity: 0.5;
 }
 
 .app {
@@ -182,8 +194,12 @@ a {
 
   .current__primary,
   .current__secondary {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     align-self: end;
+  }
+
+  .form__input--location {
+    font-size: 1em;
   }
 
   .forecast--container {
@@ -210,5 +226,6 @@ a {
     grid-template-rows: auto repeat(3, 1fr);
     gap: 3em;
     margin-top: 2em;
+    color: #e6d6c6;
   }
 }
